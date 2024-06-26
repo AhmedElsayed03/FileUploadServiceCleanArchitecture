@@ -11,6 +11,7 @@ namespace FileUpload.Application.Abstractions.Services
     public interface IFileService
     {
         Task<FileResultDto> CreateLocalFileAsync(FileInputDto fileDto);
+        Task<FileResultDto> CreateFileAsyncOCI(FileInputDto fileDto);
         Task<FileReadDto> GetFileAsync(int id);
     }
 }

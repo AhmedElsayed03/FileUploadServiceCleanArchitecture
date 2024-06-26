@@ -31,8 +31,30 @@ namespace FileUpload.Infrastructure.Servcies
 
         }
 
-        #region Create Files
+        #region Create OCI Files
+        public async Task<FileResultDto> CreateFileAsyncOCI(FileInputDto fileDto)
+        {
 
+            var fileType = GetFileType(fileDto.Extention);
+            var savedFileName = Guid.NewGuid().ToString() + fileDto.Extention;
+            var url = await _storageService.UploadFileAsyncOCI(fileDto.Stream!, savedFileName);
+
+            var uploadedFile = new UploadedFile
+            {
+                Name = fileDto.Name,
+                Size = fileDto.Length,
+                FileType = fileType,
+                Url = url
+
+            };
+            await _unitOfWork.UploadedFileRepo.AddAsync(uploadedFile);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new FileResultDto(uploadedFile.Id, url);
+        }
+        #endregion
+
+        #region Create Local Files
         public async Task<FileResultDto> CreateLocalFileAsync(FileInputDto fileDto)
         {
 
@@ -73,7 +95,6 @@ namespace FileUpload.Infrastructure.Servcies
             var File = await _unitOfWork.UploadedFileRepo.GetByIdAsync(id);
             return new FileReadDto { Id = File!.Id, Name = File.Name, Url = File.Url };
         }
-
 
     }
 }

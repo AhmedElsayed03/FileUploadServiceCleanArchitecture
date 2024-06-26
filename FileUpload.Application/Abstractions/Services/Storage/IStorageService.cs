@@ -9,5 +9,7 @@ namespace FileUpload.Application.Abstractions.Services.Storage
     public interface IStorageService
     {
         Task<string> UploadFileAsync(Stream file, string fileName);
+        Task<string> UploadFileAsyncOCI(Stream file, string fileName);
+
     }
 }

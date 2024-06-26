@@ -36,6 +36,22 @@ namespace FileUpload.API.Controllers
             return TypedResults.Ok(fileResult);
 
         }
+        
+        
+        
+        [HttpPost("upload-file-OCI")]
+        public async Task<Ok<FileResultDto>> CreateFileOCI(IFormFile file)
+        {
+            var fileInput = new FileInputDto(file.FileName.GetExtension(),
+                file.FileName.GetFileNameWithoutExtension(),
+                file.Length,
+                file.OpenReadStream());
+
+
+            var fileResult = await _fileService.CreateFileAsyncOCI(fileInput);
+            return TypedResults.Ok(fileResult);
+
+        }
 
         [HttpGet("get-file")]
         public async Task<Ok<FileReadDto>> GetFile(int id)
@@ -43,33 +59,20 @@ namespace FileUpload.API.Controllers
             var files = await _fileService.GetFileAsync(id);
             return TypedResults.Ok(files);
         }
+
+
+        //#region Extention Checking
+
+
+        //#endregion
+
+
+
+
+        //#region Length Checking
+
+
+        //#endregion
     }
 }
 
-            //#region Extention Checking
-
-            //var extension = Path.GetExtension(file.FileName);
-
-            ////Change in appsettings.json
-            //var extensionList = _configuration.GetSection("AllowedFileExtenstions").Get<string[]>();
-
-            //bool isExtensionAllowed = extensionList!.Contains(extension,
-            //    StringComparer.InvariantCultureIgnoreCase);
-            //if (!isExtensionAllowed)
-            //{
-            //    return BadRequest("Format not allowed");
-            //}
-            //#endregion
-
-
-
-
-            //#region Length Checking
-
-            //bool isSizeAllowed = ImageFile.Length is > 0 and < 5_000_000; //Picture Size (Minimum: >0 and Max: 5MB)
-
-            //if (!isSizeAllowed)
-            //{
-            //    return BadRequest("Size is Larger than allowed size");
-            //}
-            //#endregion
