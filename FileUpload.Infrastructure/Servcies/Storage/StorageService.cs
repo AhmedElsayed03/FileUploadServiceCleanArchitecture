@@ -12,6 +12,7 @@ using Oci.ObjectstorageService;
 using Oci.Common.Auth;
 using Oci.ObjectstorageService.Requests;
 using Oci.ObjectstorageService.Responses;
+using System.Security.AccessControl;
 
 
 namespace FileUpload.Infrastructure.Servcies.Storage
@@ -30,7 +31,7 @@ namespace FileUpload.Infrastructure.Servcies.Storage
             _configuration = configuration;
             _contextAccessor = contextAccessor;
 
-            var provider = new ConfigFileAuthenticationDetailsProvider("path_to_your_oci_config", "DEFAULT");
+            var provider = new ConfigFileAuthenticationDetailsProvider("path_to_oci_config", "DEFAULT");
             _objectStorageClient = new ObjectStorageClient(provider);
             _bucketName = configuration.GetValue<string>("OCIBucketName");
             _namespaceName = configuration.GetValue<string>("OCINamespaceName");
@@ -57,20 +58,19 @@ namespace FileUpload.Infrastructure.Servcies.Storage
             };
 
             PutObjectResponse response = await _objectStorageClient.PutObject(putObjectRequest);
+
+            Console.WriteLine($"Uploaded object {fileName} to bucket {_bucketName}");
         }
 
         private string GetFileUrlOCI(string fileName)
         {
-            var httpRequest = _contextAccessor.HttpContext!.Request;
-            var builder = new UriBuilder()
-            {
-                Scheme = httpRequest.Scheme,
-                Host = httpRequest.Host.Host,
-                Port = httpRequest.Host.Port ?? default,
-                Path = Path.Combine("oci/bucket/path", fileName), // Modify as per your OCI bucket path structure
-            };
+            // Get the region from the config provider
+            var region = _configuration["OCI : Region"];
 
-            var url = builder.ToString();
+            // Construct the URL
+            string url = $"https://objectstorage.{region}.oraclecloud.com/n/{_namespaceName}/b/{_bucketName}/o/{fileName}";
+
+
             return url;
         }
 
